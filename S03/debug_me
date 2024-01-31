@@ -1,0 +1,5 @@
+The first error can be seen is that in the function that defines f(a, b, c, d), the function g(a, b) is referenced in the substraction.
+For the program to work, a variable should define the result obtained from running g(a, b) before the substraction.
+
+Secondly, if the numbers inputed in the function g are equal, a zero division error will appear at a later stage in the f function when the division of
+t0 and t1 takes place. To avoid this, an if should be placed in the g function stating that the two numbers inputed into the function cannot be equal.

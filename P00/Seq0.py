@@ -37,9 +37,16 @@ def seq_complement(seq):
             print(dict_of_bases[i], end = "")
 
 def most_frequent_base(seq):
-    from operator import itemgetter
     dict = seq_count(seq)
-    bases = sorted(dict, key = itemgetter())
+    highest_value = 0
+    key1 = ""
+    for key, value in dict.items():
+        if value > highest_value:
+            highest_value = value
+            key1 = key
+
+    return key1
+
 
 
 

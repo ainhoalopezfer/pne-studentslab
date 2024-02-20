@@ -1,11 +1,5 @@
 from pathlib import Path
 class Seq:
-    def read_fasta(self, filename):
-        file_contents = Path(filename).read_text()
-        lines = file_contents.split("\n")[1:]
-        strbases = "".join(lines)
-        self.strbases = strbases
-        return self.strbases
     def __init__(self, strbases = "NULL"):
         if strbases == "NULL":
             print("NULL sequence created")
@@ -65,6 +59,23 @@ class Seq:
 
         return str
 
+    def read_fasta(self, filename):
+        file_contents = Path(filename).read_text()
+        lines = file_contents.split("\n")[1:]
+        strbases = "".join(lines)
+        self.strbases = strbases
+        return self.strbases
+
+    def most_frequent_base(self):
+        dict = self.count()
+        highest_value = 0
+        key1 = ""
+        for key, value in dict.items():
+            if value > highest_value:
+                highest_value = value
+                key1 = key
+
+        return key1
 
 
 

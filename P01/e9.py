@@ -1,7 +1,7 @@
 from Seq1 import Seq
 # -- Create a Null sequence
 s = Seq()
-FILENAME = "../Sequences/ADA"
+FILENAME = "../Sequences/U5.txt"
 # -- Initialize the null seq with the given file in fasta format
 s.read_fasta(FILENAME)
 

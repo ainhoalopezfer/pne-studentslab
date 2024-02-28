@@ -77,5 +77,15 @@ class Seq:
 
         return key1
 
+    #FOR PRACTICE 2
+
+    def first_n_str(self, num_of_times, filename, num_of_bases):
+        file = self.read_fasta(filename)
+        file_new = []
+        for i in range(num_of_times):
+            file_new.append(file[:num_of_bases])
+            file = file[num_of_bases:]
+
+        return file_new
 
 

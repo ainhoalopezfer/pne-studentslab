@@ -1,6 +1,6 @@
 import socket
 from client1 import Client
-from Seq2 import *
+from Seq2 import Seq
 
 # Configure the Server's IP and PORT
 PORT = 8082

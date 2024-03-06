@@ -46,5 +46,3 @@ class Client:
 
     def gene(self):
         print(termcolor.colored("GENE", "green") + "\nNul sequence created!")
-
-

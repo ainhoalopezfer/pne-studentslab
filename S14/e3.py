@@ -29,6 +29,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         # Message to send back to the client
         if self.requestline.startswith("GET / ") or self.requestline.startswith("GET /index"):
             contents = Path("../S14/index.html").read_text()
+        elif self.requestline.startswith("GET /blue"):
+            contents = Path("../S14/blue.html").read_text()
+        elif self.requestline.startswith("GET /pink"):
+            contents = Path("../S14/pink.html").read_text()
+        elif self.requestline.startswith("GET /green"):
+            contents = Path("../S14/green.html").read_text()
         else:
             contents = Path("../S14/error.html").read_text()
 

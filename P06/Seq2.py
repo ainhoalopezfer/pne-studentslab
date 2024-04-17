@@ -33,4 +33,3 @@ class Seq:
         seq = "".join(lines)
         self.seq = seq
         return self.seq
-

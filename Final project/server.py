@@ -33,9 +33,21 @@ def data(ENDPOINT):
 
     return person
 
+
+"""
+class Seq(seq):
+    def __innit__(self):
+        return self.seq
+
+    def length(self):
+        return len(self.seq)
+"""
+
 class TestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         termcolor.cprint(self.requestline, 'green')
+        request = self.requestline.split(" ")
+        print(request[1])
 
         def read_html_file(filename):
             contents = Path("html/" + filename).read_text()
@@ -43,19 +55,18 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             return contents
 
         def sci_name(specie):
+            specie = specie.replace("+", " ").strip().lower()
             sci_specie = ""
             person = data("/info/species")
             for i in person["species"]:
-                for n in i["aliases"]:
-                    if specie in n:
-                        sci_specie = i["name"]
+                if i["display_name"].lower() == specie.lower():
+                    sci_specie = i["name"]
             return sci_specie
 
-        if self.requestline.startswith("GET / ") or self.requestline.startswith("GET /index"):
-            contents = Path("../Final project/html/index.html").read_text()
-        elif self.requestline.startswith("GET /listSpecies?"):
+        if request[1] == "/" or request[1].startswith("/index"):
+            contents = open("../Final project/html/index.html").read()
+        elif request[1].startswith("/listSpecies?"):
             person = data("/info/species")
-            request = self.requestline.split(" ")
             number = request[1][17:]
             total = len(person["species"])
             names = ""
@@ -63,24 +74,33 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 name = person["species"][i]["common_name"]
                 names += "<br>• " + name
             contents = read_html_file("listSpecies.html").render(context={"total": total, "number": number, "list": names})
-        elif self.requestline.startswith("GET /karyotype?"):
-            request = self.requestline.split(" ")
+        elif request[1].startswith("/karyotype?"):
             specie = request[1][18:]
             chromosomes = ""
             sci_specie = sci_name(specie)
-            person1 = data("/info/assembly/" + sci_specie)
-            for chrom in person1["karyotype"]:
-                chromosomes += "<br>• " + chrom
-
-            contents = read_html_file("karyotype.html").render(context={"chromosomes": chromosomes})
-        elif self.requestline.startswith("GET /chromosomeLength?"):
-            request = self.requestline.split(" ")
-            specie = request[1][25:-13]
-            number = request[1][42:]
+            if sci_specie:
+                person1 = data("/info/assembly/" + sci_specie)
+                if person1["karyotype"]:
+                    for chrom in person1["karyotype"]:
+                        chromosomes += "<br>• " + chrom
+                else:
+                    chromosomes = "No karyotype found"
+                contents = read_html_file("karyotype.html").render(context={"chromosomes": chromosomes})
+            else:
+                contents = open("../Final project/html/error.html").read()
+        elif request[1].startswith("/chromosomeLength?"):
+            chromrequest = request[1].split("&")
+            specie = chromrequest[0][25:]
+            number = chromrequest[1][11:]
             sci_specie = sci_name(specie)
-            person1 = data("/info/assembly/" + sci_specie)
-            length = person1["top_level_region"][int(number)]["length"]
-            contents = read_html_file("chromosomeLength.html").render(context={"length": length})
+            if sci_specie:
+                person1 = data("/info/assembly/" + sci_specie)
+                length = person1["top_level_region"][int(number)]["length"]
+                contents = read_html_file("chromosomeLength.html").render(context={"length": length})
+            else:
+                contents = open("../Final project/html/error.html").read()
+        elif request[1].startswith("/geneSeq"):
+            contents = ""
 
         elif self.requestline.startswith("GET /favicon.ico"):
             contents = ""

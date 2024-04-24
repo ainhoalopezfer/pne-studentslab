@@ -1,6 +1,6 @@
 import http.client
 import json
-"""
+
 #"https://rest.ensembl.org/info/assembly/homo_sapiens?content-type=application/json"
 #http://rest.ensembl.org/info/species?content-type=application/json
 SERVER = "rest.ensembl.org"
@@ -29,35 +29,10 @@ def data(ENDPOINT):
 
     return person
 
-requestline = "GET /karyotype?specie=human HTTP/1.1"
+
+requestline = "GET /chromosomeLength?specie=human&chromosome=1 HTTP/1.1"
 request = requestline.split(" ")
-specie = request[1][18:]
-print(specie)
-chromosomes = ""
-person = data("/info/species")
-for i in person["species"]:
-    for n in i["aliases"]:
-        if specie in n:
-            sci_specie = i["name"]
-            print(sci_specie)
-            person1 = data("/info/assembly/" + sci_specie)
-            print(person1["top_level_region"][1]["length"])
-
-print(chromosomes)
-
-
-def sci_name(specie):
-    sci_specie = ""
-    person = data("/info/species")
-    for i in person["species"]:
-        for n in i["aliases"]:
-            if specie in n:
-                sci_specie = i["name"]
-    return sci_specie
-"""
-
-request = "GET /chromosomeLength?specie=human&chromosome=1 HTTP/1.1"
-request = request.split(" ")
-specie = request[1][25:-13]
-number = request[1][42:]
+chromrequest = request[1].split("&")
+specie = chromrequest[0][25:]
+number = chromrequest[1][11:]
 print(specie, number)

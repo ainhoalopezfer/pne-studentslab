@@ -30,9 +30,39 @@ def data(ENDPOINT):
     return person
 
 
-requestline = "GET /chromosomeLength?specie=human&chromosome=1 HTTP/1.1"
+requestline = "GET /geneCalc?chromosome=ADA HTTP/1.1"
 request = requestline.split(" ")
-chromrequest = request[1].split("&")
-specie = chromrequest[0][25:]
-number = chromrequest[1][11:]
-print(specie, number)
+gene = request[1][21:]
+print(gene)
+
+
+class Seq:
+    def __init__(self, seq):
+        self.seq = seq
+
+    """def getting_seq(self):
+        person = data("/lookup/symbol/homo_sapiens/" + self.gene)
+        name = person["id"]
+        person1 = data("sequence/id/" + name)
+        seq = person1["seq"]
+        return seq"""
+    def length(self):
+        #seq = self.getting_seq()
+        return len(self.seq)
+
+    def count(self, b):
+        #seq = self.getting_seq()
+        base = self.seq.count(b)
+        percentage = (base/len(self.seq) * 100)
+
+        return b + ": " + str(base) + " (" + str(percentage) + "%)"
+
+
+bases = ["A", "G", "T", "C"]
+gene = "ATGCTAGTCAGTA"
+s = Seq(gene)
+results = []
+for i in bases:
+    results.append(s.count(i))
+
+print(results)

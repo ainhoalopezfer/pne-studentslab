@@ -6,7 +6,9 @@
 </head>
 <body style="background-color: lavender;">
     <p>The names of the chromosomes are:</p>
-    <p>{{context.chromosomes}}</p>
+    {% for i in context.chromosomes %}
+        <ul><li>{{i}}</li></ul>
+    {% endfor %}
 
     <a href="index.html">Main page</a>
 

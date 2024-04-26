@@ -28,8 +28,32 @@
         <input type="submit" value="Send">
     </form>
     <form action ="geneSeq" method="get">
-        4) Get a human gene
+        <p>4) Get the genetic sequence of a human gene</p>
+        Insert the desired gene:
+        <input type="text" name="chromosome">
+        <input type="submit" value="Get"><br>
+    </form>
+    <form action="geneInfo" method="get">
+        <p>5) Get information about a human gene!</p>
+        Insert the desired gene:
+        <input type="text" name="chromosome">
         <input type="submit" value="Get">
+    </form>
+    <form action="geneCalc" method="get">
+        <p>6) Gene calculator</p>
+        Insert the desired gene:
+        <input type="text" name="chromosome">
+        <input type="submit" value="Send">
+    </form>
+    <form action="geneList" method="get">
+        <p>7) Get the names of the genes in the chromosome</p>
+        Insert the desired chromosome:
+        <input type="text" name="chromosome"><br>
+        Enter the start:
+        <input type="text" name="start"><br>
+        Enter the end:
+        <input type="text" name="end"><br>
+        <input type="submit" value="Send">
     </form>
 </body>
 </html>

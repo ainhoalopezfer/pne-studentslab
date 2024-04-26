@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gene calculator</title>
+</head>
+<body style="background-color: thistle;">
+    <h1>The gene you have selected is {{context.gene}}</h1>
+    <p>Length: {{context.length}}</p>
+    <p>Bases calculator</p>
+    {% for i in context.results %}
+        <ul><li>{{i}}</li></ul>
+    {% endfor %}
+    <a href="index.html">Main page</a>
+</body>
+</html>

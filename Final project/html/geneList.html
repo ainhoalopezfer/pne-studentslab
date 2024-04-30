@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Karyotype</title>
+    <title>List of genes in a chromosome</title>
 </head>
 <body style="background-color: thistle;">
-    <p>The names of the chromosomes are:</p>
-    {% for i in context.chromosomes %}
+    <h1>List of genes in chromosome {{context.chromosome}}</h1>
+    <p>Start: {{context.start}}, End: {{context.end}}</p>
+    {% for i in context.names %}
         <ul><li>{{i}}</li></ul>
     {% endfor %}
-
     <a href="index.html">Main page</a>
-
 </body>
 </html>

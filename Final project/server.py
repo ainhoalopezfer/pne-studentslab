@@ -61,7 +61,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         termcolor.cprint(self.requestline, 'green')
         request = self.requestline.split(" ")
-
+        action = request[1]
+        instruction = ""
+        if "?" in request[1]:
+            separate = request[1].split("?")
+            action, instruction = separate[0], separate[1]
+        print(action, instruction)
         def read_html_file(filename):
             contents = Path("html/" + filename).read_text()
             contents = j.Template(contents)
@@ -78,19 +83,22 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
 
 
-        if request[1] == "/" or request[1].startswith("/index"):
+        if action == "/" or action == "/index.html":
             contents = open("../Final project/html/index.html").read()
-        elif request[1].startswith("/listSpecies?"):
+        elif action == "/listSpecies":
             person = data("/info/species")
-            number = request[1][17:]
             total = len(person["species"])
+            number = total
+            if instruction:
+                number = instruction[6:]
+                number = int(number)
             names = []
-            for i in range(int(number)):
+            for i in range(number):
                 name = person["species"][i]["common_name"].capitalize()
                 names.append(name)
             contents = read_html_file("listSpecies.html").render(context={"total": total, "number": number, "list": names})
-        elif request[1].startswith("/karyotype?"):
-            specie = request[1][18:]
+        elif action == "/karyotype":
+            specie = instruction[8:]
             chromosomes = []
             sci_specie = sci_name(specie)
             if sci_specie:
@@ -103,10 +111,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = read_html_file("karyotype.html").render(context={"chromosomes": chromosomes})
             else:
                 contents = open("../Final project/html/error.html").read()
-        elif request[1].startswith("/chromosomeLength?"):
-            chromrequest = request[1].split("&")
-            specie = chromrequest[0][25:]
-            number = chromrequest[1][11:]
+        elif action == "/chromosomeLength":
+            chromrequest = instruction.split("&")
+            specie = chromrequest[0][8:]
+            number = chromrequest[1][7:]
             sci_specie = sci_name(specie)
             if sci_specie:
                 person1 = data("/info/assembly/" + sci_specie)
@@ -115,21 +123,20 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             else:
                 contents = open("../Final project/html/error.html").read()
 
-        elif request[1].startswith("/geneSeq"):
-            gene = request[1][20:]
+        elif action == "/geneSeq":
+            gene = instruction[5:]
             s = Seq(gene)
             sequence = s.getting_seq()
             contents = read_html_file("geneSeq.html").render(context={"gene": gene, "sequence": sequence})
-        elif request[1].startswith("/geneInfo"):
-            gene = request[1][21:]
+        elif action == "/geneInfo":
+            gene = instruction[5:]
             s = Seq(gene)
             person = data("/lookup/symbol/homo_sapiens/" + gene)
             start, end, name = person["start"], person["end"], person["id"]
             length = s.length()
-            print(length)
             contents = read_html_file("geneInfo.html").render(context={"gene": gene, "start": start, "end": end, "length": length, "id": name})
-        elif request[1].startswith("/geneCalc"):
-            gene = request[1][21:]
+        elif action == "/geneCalc":
+            gene = instruction[5:]
             s = Seq(gene)
             length = s.length()
             bases = ["A", "G", "T", "C"]
@@ -138,8 +145,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 base = s.count(i)
                 results.append(base)
             contents = read_html_file("geneCalc.html").render(context={"gene": gene, "length": length, "results": results})
-
-
+        elif action == "/geneList":
+            information = instruction.split("&")
+            chromo = information[0][7:]
+            start = information[1][6:]
+            end = information[2][4:]
+            person = data("/phenotype/region/homo_sapiens/" + chromo + ":" + start + "-" + end)
+            names = []
+            for i in range(len(person)):
+                names.append(person[i]["id"])
+            contents = read_html_file("geneList.html").render(context={"chromosome": chromo, "start": start, "end": end, "names": names})
         elif self.requestline.startswith("GET /favicon.ico"):
             contents = ""
 

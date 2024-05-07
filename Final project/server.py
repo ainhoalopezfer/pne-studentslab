@@ -52,7 +52,7 @@ class Seq:
     def count(self, b):
         seq = self.getting_seq()
         base = seq.count(b)
-        percentage = (base/len(seq) * 100)
+        percentage = round((base/len(seq) * 100), 2)
 
         return b + ": " + str(base) + " (" + str(percentage) + "%)"
 
@@ -62,11 +62,14 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         termcolor.cprint(self.requestline, 'green')
         request = self.requestline.split(" ")
         action = request[1]
-        instruction = ""
+        application_type = ""
+        content_type = "html"
         if "?" in request[1]:
             separate = request[1].split("?")
             action, instruction = separate[0], separate[1]
-        print(action, instruction)
+            if "json=1" in request[1]:
+                application_type = separate[2]
+
         def read_html_file(filename):
             contents = Path("html/" + filename).read_text()
             contents = j.Template(contents)
@@ -81,22 +84,43 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     sci_specie = i["name"]
             return sci_specie
 
+        def json_file(name, filename):
+            json_dict = {}
+            if type(name) == list:
+                for index, content in enumerate(name):
+                    json_dict[index] = content
+            elif type(name) == str or type(name) == int:
+                json_dict["1"] = name
+            elif type(name) == dict:
+                json_dict = name
+            with open(filename, "w") as f:
+                json.dump(json_dict, f)
+                f.close()
 
+            contents = Path(filename).read_text()
+            content_type = 'application/json'
+
+            return contents, content_type
 
         if action == "/" or action == "/index.html":
+            content_type = "html"
             contents = open("../Final project/html/index.html").read()
         elif action == "/listSpecies":
             person = data("/info/species")
             total = len(person["species"])
             number = total
-            if instruction:
+            if instruction != "limit=":
                 number = instruction[6:]
                 number = int(number)
             names = []
             for i in range(number):
                 name = person["species"][i]["common_name"].capitalize()
                 names.append(name)
-            contents = read_html_file("listSpecies.html").render(context={"total": total, "number": number, "list": names})
+
+            if application_type == "json=1":
+               contents, content_type = json_file(names, "listSpecies.json")
+            else:
+                contents = read_html_file("listSpecies.html").render(context={"total": total, "number": number, "list": names})
         elif action == "/karyotype":
             specie = instruction[8:]
             chromosomes = []
@@ -108,7 +132,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         chromosomes.append(chrom)
                 else:
                     chromosomes = "No karyotype found"
-                contents = read_html_file("karyotype.html").render(context={"chromosomes": chromosomes})
+                if application_type == "json=1":
+                    contents, content_type = json_file(chromosomes, "karyotype.json")
+                else:
+                    contents = read_html_file("karyotype.html").render(context={"chromosomes": chromosomes})
             else:
                 contents = open("../Final project/html/error.html").read()
         elif action == "/chromosomeLength":
@@ -119,7 +146,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if sci_specie:
                 person1 = data("/info/assembly/" + sci_specie)
                 length = person1["top_level_region"][int(number)]["length"]
-                contents = read_html_file("chromosomeLength.html").render(context={"length": length})
+                if application_type == "json=1":
+                    contents, content_type = json_file(length, "chromosomeLength.json")
+                else:
+                    contents = read_html_file("chromosomeLength.html").render(context={"length": length})
             else:
                 contents = open("../Final project/html/error.html").read()
 
@@ -127,14 +157,22 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             gene = instruction[5:]
             s = Seq(gene)
             sequence = s.getting_seq()
-            contents = read_html_file("geneSeq.html").render(context={"gene": gene, "sequence": sequence})
+            gene_dict = {"gene": gene, "sequence": sequence}
+            if application_type == "json=1":
+                contents, content_type = json_file(gene_dict, "geneSeq.json")
+            else:
+                contents = read_html_file("geneSeq.html").render(context=gene_dict)
         elif action == "/geneInfo":
             gene = instruction[5:]
             s = Seq(gene)
             person = data("/lookup/symbol/homo_sapiens/" + gene)
             start, end, name = person["start"], person["end"], person["id"]
             length = s.length()
-            contents = read_html_file("geneInfo.html").render(context={"gene": gene, "start": start, "end": end, "length": length, "id": name})
+            chromosomes_dict = {"gene": gene, "start": start, "end": end, "length": length, "id": name}
+            if application_type == "json=1":
+                contents, content_type = json_file(chromosomes_dict, "geneInfo.json")
+            else:
+                contents = read_html_file("geneInfo.html").render(context=chromosomes_dict)
         elif action == "/geneCalc":
             gene = instruction[5:]
             s = Seq(gene)
@@ -144,7 +182,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             for i in bases:
                 base = s.count(i)
                 results.append(base)
-            contents = read_html_file("geneCalc.html").render(context={"gene": gene, "length": length, "results": results})
+            calc_dict = {"gene": gene, "length": length, "results": results}
+            if application_type == "json=1":
+                contents, content_type = json_file(calc_dict, "geneCalc.json")
+            else:
+                contents = read_html_file("geneCalc.html").render(context=calc_dict)
         elif action == "/geneList":
             information = instruction.split("&")
             chromo = information[0][7:]
@@ -154,7 +196,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             names = []
             for i in range(len(person)):
                 names.append(person[i]["id"])
-            contents = read_html_file("geneList.html").render(context={"chromosome": chromo, "start": start, "end": end, "names": names})
+            list_dict = {"chromosome": chromo, "start": start, "end": end, "names": names}
+            if application_type == "json=1":
+                contents, content_type = json_file(list_dict, "geneList.json")
+            else:
+                contents = read_html_file("geneList.html").render(context=list_dict)
         elif self.requestline.startswith("GET /favicon.ico"):
             contents = ""
 
@@ -162,7 +208,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(200)  # -- Status line: OK!
 
         # Define the content-type header:
-        self.send_header('Content-Type', 'html')
+        self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', len(contents.encode()))
 
         # The header is finished

@@ -1,22 +1,29 @@
-import socket
+import http.client
+import json
+import socketserver
 import termcolor
-from Seq1 import Seq
-class Client:
-    def __init__(self, IP, PORT):
-        self.ip = IP
-        self.port = PORT
-        pass
 
-    def __str__(self):
-        return f"Connection to SERVER at {self.ip}, PORT: {self.port}"
+PORT = 8080
+SERVER = "localhost"
 
-    def ping(self):
-        print(termcolor.colored("PING Command!", "green"))
+print(f"\nConnecting to server: {SERVER}:{PORT}\n")
 
-    def talk(self, msg):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.ip, self.port))
-        s.send(str.encode(msg))
-        response = s.recv(2048).decode("utf-8")
-        s.close()
-        return response
+conn = http.client.HTTPConnection(SERVER, PORT)
+def connection(ENDPOINT):
+    try:
+        conn.request("GET", ENDPOINT)
+    except ConnectionRefusedError:
+        print("ERROR! Cannot connect to the Server")
+        exit()
+    r1 = conn.getresponse()
+
+    print(f"Response received!: {r1.status} {r1.reason}\n")
+
+    if "json=1" in ENDPOINT:
+        data1 = r1.read().decode("utf-8")
+        person = json.loads(data1)
+
+    return person
+
+print(connection("/listSpecies?limit=12?json=1"))
+
